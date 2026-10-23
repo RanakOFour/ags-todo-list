@@ -18,3 +18,8 @@ window.Bar {
     margin: 2px;
   }
 }
+
+checkbutton.note.completed label{
+  text-decoration: line-through;
+  opacity: 0.6;
+}

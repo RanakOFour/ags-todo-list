@@ -2,19 +2,89 @@
 import style from "./style.scss"
 import app from "ags/gtk4/app"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
-import { CCProps, jsx} from "ags"
+import { CCProps, jsx, createState } from "ags"
 import { createPoll } from "ags/time"
 
+// Other GTK elements converted into jsx
 const CheckButton = (props: Partial<CCProps<Gtk.CheckButton, Gtk.CheckButton.ConstructorProps>>) =>
   jsx(Gtk.CheckButton, props)
+
+const TextTag = (props: Partial<CCProps<Gtk.TextTag, Gtk.TextTag.ConstructorProps>>) =>
+  jsx(Gtk.TextTag, props)
 
 const Grid = (props: Partial<CCProps<Gtk.Grid, Gtk.Grid.ConstructorProps>>) =>
   jsx(Gtk.Grid, props)
 
+// Note, Tag and Manager classes
 class Note
 {
-  name : string
-  content : string
+  id : number = -1
+  text : string = ""
+  cmdToStart : string = ""
+  isCompleted : boolean = false
+  deadline : Date = new Date()
+  dateCreated : Date = new Date()
+}
+
+function NoteItem({note} : {note : Note}){
+  const [complete, setComplete] = createState(note.isCompleted)
+
+  return(
+    <CheckButton
+      name={`note-${note.id}`}
+      label={note.text}
+      active={complete}
+      cssClasses={complete((c) => (c ? ["note", "completed"] : ["note"]))}
+      onToggled={({active}) => {
+        note.isCompleted = active
+        setComplete(active)
+      }}
+    />
+  )
+}
+
+class Tag
+{
+  name : string = ""
+  color : string = ""
+  notes : number[]
+}
+
+class NoteManager
+{
+  notes : Note[]
+  tags : Tag[]
+
+  constructor(){
+    this.notes = new Array<Note>()
+    this.tags = new Array<Tag>()
+  }
+
+  AddNote(_text : string) : Note {
+    var newNote = new Note()
+    
+    newNote.id = this.notes.length
+    newNote.text = _text
+    newNote.dateCreated = new Date()
+    
+    this.notes.push(newNote)
+    
+    return newNote
+  }
+ 
+  SetDeadline(_id : number, _deadline : Date) {
+    const found = this.notes.find((note) => note.id == _id)
+    if(found) {
+      found.deadline = _deadline
+    }
+  }
+
+  SetCommand(_id : number, _cmd : string) {
+    const found = this.notes.find((note) => note.id == _id)
+    if(found) {
+      found.cmdToStart = _cmd
+    }
+  }
 }
 
 function AddNoteButton(){
@@ -23,17 +93,21 @@ function AddNoteButton(){
   )
 }
 
-function NoteView(){
+function NoteView(_noteManager : NoteManager){
+  
+  // TEST
+  _noteManager.AddNote("Test")
+  _noteManager.AddNote("Test2")
+
   return(
     // Add button for each note
     <box orientation={Gtk.Orientation.VERTICAL}>
-      <label label="Test"/>
-      <label label="Test2"/>
+      {_noteManager.notes.map((note) => <NoteItem note={note}/>)}
     </box>
   )
 }
 
-function TopBar(){
+function TopBar(_noteView : Gtk.Box, _noteManager : NoteManager){
   return(
     <box orientation={Gtk.Orientation.HORIZONTAL} spacing={4}>
       <label label="To Do" xalign={0} hexpand />
@@ -54,6 +128,12 @@ function MainWindow(){
   // Anchored top-right, that means:
   const marginRight = Math.round(width / 4 - WIN_W / 2)
   const marginTop = Math.round(height / 4 - WIN_H / 2)
+
+  // TODO: Load notes from JSON
+  var noteManager = new NoteManager()
+
+  const noteView = NoteView(noteManager)
+  const topBar = TopBar(noteView, noteManager)
   
   return(
   <window css="border-radius: 8%; min-width: 250px; min-height: 250px;"
@@ -66,30 +146,13 @@ function MainWindow(){
     <Grid rowSpacing={2} columnSpacing={1}
           marginStart={16} marginEnd={16}
       $={(self) => {
-          self.attach(TopBar() as Gtk.Widget, 0, 0, 1, 1)
-          self.attach(NoteView() as Gtk.Widget, 0, 1, 1, 1)
+          self.attach(topBar as Gtk.Widget, 0, 0, 1, 1)
+          self.attach(noteView as Gtk.Widget, 0, 1, 1, 1)
         }
         }
     />
   </window>
   )
-}
-
-function oldMainWindow(){
-return (<window css="min-width: 250px; min-height: 250px; border: 1px solid red; border-radius: 8%;" visible name="TestWindow">
-        <Grid 
-          rowSpacing={3} columnSpacing={1}
-
-          // Maybe add empty boxes instead so the CheckButtons can span the whole window width
-          marginStart={16} marginEnd={16}
-          $={(self) => {
-            self.attach(<label label="To Do" xalign={0}/> as Gtk.Widget, 1, 0, 1, 1)
-            self.attach(<CheckButton label="This is a button" /> as Gtk.Widget, 1, 1, 1, 4)
-            self.attach(<AddNoteButton/> as Gtk.Widget, 1, 2, 1, 1)
-          }}
-        />
-      </window>
-)
 }
 
 app.start({
