@@ -1,7 +1,11 @@
-import { Note, NoteManager, CheckButton, Entry } from "@/structures"
-import { createState, For } from "ags"
+import { Accessor, createState, For } from "ags"
 import { Gtk } from "ags/gtk4"
-import GObject from "gnim/gobject"
+
+import { Note, NoteManager, CheckButton } from "@/structures"
+
+// Sits hidden at the bottom of the NoteView until
+// the "+" button in TopBar is pressed
+export let NewNoteEntry : Gtk.Entry
 
 export function NoteItem({note} : {note : Note}){
   const [complete, setComplete] = createState(note.isCompleted)
@@ -20,18 +24,29 @@ export function NoteItem({note} : {note : Note}){
   )
 }
 
-export function NoteView() : GObject.Object {
-  
+export function NoteView(addingNewNote : Accessor<boolean>, setAddingNewNote : (v : boolean) => void) {
   const nm = NoteManager.get()
-
-  // TEST
-  nm.AddNote("Test")
-  nm.AddNote("Test2")
 
   return(
     // Add button for each note
     <box orientation={Gtk.Orientation.VERTICAL}>
-      {nm.notes().map((note) => <NoteItem note={note}/>)}
+      <box orientation={Gtk.Orientation.VERTICAL}>
+        <For each={nm.notes}>
+          {(note) => <NoteItem note={note}/>}
+        </For>
+      </box>
+    <entry // This is the NewNoteEntry
+      $={(self) => (NewNoteEntry = self)}
+      cssClasses={["newnote"]} 
+      placeholderText={"New note"}
+      visible={addingNewNote}
+      onActivate={(self) => {
+        const text = self.text.trim()
+        if (text != "") nm.AddNote(text)
+        self.text = ""
+        setAddingNewNote(false)
+      }}
+    />
     </box>
   )
 }

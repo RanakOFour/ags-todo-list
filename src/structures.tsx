@@ -12,9 +12,6 @@ export const CheckButton = (props: Partial<CCProps<Gtk.CheckButton, Gtk.CheckBut
 export const Grid = (props: Partial<CCProps<Gtk.Grid, Gtk.Grid.ConstructorProps>>) =>
     jsx(Gtk.Grid, props)
 
-export const Entry = (props: Partial<CCProps<Gtk.Entry, Gtk.Entry.ConstructorProps>>) =>
-    jsx(Gtk.Entry, props)
-
 
 export class Note
 {

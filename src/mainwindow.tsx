@@ -1,14 +1,11 @@
-#!/usr/bin/env -S ags run
-import app from "ags/gtk4/app"
+import { createState } from "gnim"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
 
 import { NoteManager, Grid } from "@/structures"
 import { NoteView } from "@/notelist/noteview"
 import { TopBar } from "@/topbar/topbar"
 
-import style from "r/style.scss"
-
-function MainWindow(){
+export function MainWindow(){
   const WIN_H = 250
   const WIN_W = 250
   // First monitor size
@@ -22,8 +19,10 @@ function MainWindow(){
   // TODO: Load notes from JSON
   NoteManager.init()
 
-  const noteView = NoteView()
-  const topBar = TopBar(noteView)
+  const [addingNewNote, setAddingNewNote] = createState(false)
+
+  const noteView = NoteView(addingNewNote, setAddingNewNote)
+  const topBar = TopBar(setAddingNewNote)
   
   return(
   <window visible name="ToDo List"
@@ -31,6 +30,7 @@ function MainWindow(){
           exclusivity={Astal.Exclusivity.IGNORE}
           marginTop={marginTop}
           marginRight={marginRight}
+          keymode={Astal.Keymode.ON_DEMAND}
     >
     <Grid rowSpacing={2} columnSpacing={1}
           marginStart={16} marginEnd={16}
@@ -43,10 +43,3 @@ function MainWindow(){
   </window>
   )
 }
-
-app.start({
-  css: style,
-  main() {
-    return MainWindow()
-  },
-})
