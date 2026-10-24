@@ -5,10 +5,20 @@
     "module": "ES2022",
     "target": "ES2020",
     "lib": ["ES2023"],
+    
     "moduleResolution": "Bundler",
     // "checkJs": true,
     // "allowJs": true,
+
     "jsx": "react-jsx",
-    "jsxImportSource": "ags/gtk4"
+    "jsxImportSource": "ags/gtk4",
+
+    // Ignores error for baseUrl being depricated
+    "ignoreDeprecations": "6.0",
+    "baseUrl" : ".",
+    "paths" : {
+      "@/*" : ["src/*"],
+      "r/*" : ["./*"]
+    }
   }
 }
