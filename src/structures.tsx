@@ -52,8 +52,7 @@ export class NoteManager
         this.setNotes = setNotes
         this.nextNoteID = 0
 
-        interface JSONData {
-            id : number
+        interface jsonNote{
             text : string
             dateCreated : Date
             isCompleted : boolean
@@ -61,7 +60,7 @@ export class NoteManager
             cmdToStart? : string
         }
 
-        const jsonParseRes = JSON.parse(_oldNotes) as JSONData[]
+        const jsonParseRes = JSON.parse(_oldNotes) as jsonNote[]
         
         jsonParseRes.forEach(data => {
             const newNote = new Note()
@@ -101,7 +100,7 @@ export class NoteManager
 
     WriteNotesToConfig()
     {
-        const noteString = JSON.stringify(this.notes(), null, 2)
+        const noteString = JSON.stringify(this.notes(), ["text", "dateCreated", "isCompleted", "deadline", "cmdToStart"], 2)
         writeFile(configNotePath, noteString)
         console.log("Note changes written to file")
     }

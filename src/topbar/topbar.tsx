@@ -14,8 +14,10 @@ export function TopBar(setAddingNewNote : (v: boolean) => void){
           NewNoteEntry.grab_focus()
         }}
       />
-      <button cssClasses={["topbutton", "filter"]} label="F" />
-      <button cssClasses={["topbutton", "sort"]} label="S" />
+      {//<button cssClasses={["topbutton", "filter"]} label="F" />
+      }
+      {//<button cssClasses={["topbutton", "sort"]} label="S" />
+      }
     </box>
   )
 }

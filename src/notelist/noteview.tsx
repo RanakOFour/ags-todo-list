@@ -31,7 +31,7 @@ export function NoteItem({note} : {note : Note}){
     <CheckButton
      label={note.text}
       active={complete}
-      cssClasses={complete((c) => (c ? ["notetext", "completed"] : ["note"]))}
+      cssClasses={complete((c) => (c ? ["notetext", "completed"] : ["notetext"]))}
       onToggled={({active}) => {
         note.isCompleted = active
         setComplete(active)
@@ -51,7 +51,7 @@ export function NoteView(_addingNewNote : Accessor<boolean>, _setAddingNewNote :
       {
         // Second box to display Entry below the list
       }
-      <box orientation={Gtk.Orientation.VERTICAL}>
+      <box orientation={Gtk.Orientation.VERTICAL} spacing={2}>
         <For each={nm.notes}>
           {(note, nm) => <NoteItem note={note}/>}
         </For>
