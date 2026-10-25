@@ -9,42 +9,63 @@ export let NewNoteEntry : Gtk.Entry
 
 export function NoteItem({note} : {note : Note}){
   const [complete, setComplete] = createState(note.isCompleted)
+  const nm = NoteManager.get()
 
-  return(
-    <CheckButton
-      name={`note-${note.id}`}
-      label={note.text}
-      active={complete}
+  complete.subscribe(() => {nm.WriteNotesToConfig()})
+
+  const deleteButton = (
+  <button
+    cssClasses={["deletenote"]}
+    visible={complete}
+    label={"X"}
+    onClicked={() => {NoteManager.get().RemoveNote(note)}}
+    halign={Gtk.Align.END}
+    />) as Gtk.Widget
+    
+    return(
+    <overlay
       cssClasses={complete((c) => (c ? ["note", "completed"] : ["note"]))}
+      name={`note-${note.id}`}
+      $={(self) => self.add_overlay(deleteButton)}
+    >
+    <CheckButton
+     label={note.text}
+      active={complete}
+      cssClasses={complete((c) => (c ? ["notetext", "completed"] : ["note"]))}
       onToggled={({active}) => {
         note.isCompleted = active
         setComplete(active)
       }}
     />
+    
+    </overlay>
   )
 }
 
-export function NoteView(addingNewNote : Accessor<boolean>, setAddingNewNote : (v : boolean) => void) {
+export function NoteView(_addingNewNote : Accessor<boolean>, _setAddingNewNote : (v : boolean) => void) {
   const nm = NoteManager.get()
 
   return(
     // Add button for each note
     <box orientation={Gtk.Orientation.VERTICAL}>
+      {
+        // Second box to display Entry below the list
+      }
       <box orientation={Gtk.Orientation.VERTICAL}>
         <For each={nm.notes}>
-          {(note) => <NoteItem note={note}/>}
+          {(note, nm) => <NoteItem note={note}/>}
         </For>
       </box>
     <entry // This is the NewNoteEntry
       $={(self) => (NewNoteEntry = self)}
       cssClasses={["newnote"]} 
       placeholderText={"New note"}
-      visible={addingNewNote}
+      visible={_addingNewNote}
       onActivate={(self) => {
         const text = self.text.trim()
         if (text != "") nm.AddNote(text)
         self.text = ""
-        setAddingNewNote(false)
+        _setAddingNewNote(false)
       }}
     />
     </box>

@@ -1,5 +1,4 @@
 import { Gtk } from "ags/gtk4"
-import GObject from "gnim/gobject"
 
 import { NewNoteEntry } from "@/notelist/noteview"
 
@@ -15,8 +14,8 @@ export function TopBar(setAddingNewNote : (v: boolean) => void){
           NewNoteEntry.grab_focus()
         }}
       />
-      <button cssClasses={["topbutton"]} label="F" />
-      <button cssClasses={["topbutton"]} label="S" />
+      <button cssClasses={["topbutton", "filter"]} label="F" />
+      <button cssClasses={["topbutton", "sort"]} label="S" />
     </box>
   )
 }

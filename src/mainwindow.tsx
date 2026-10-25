@@ -1,9 +1,24 @@
 import { createState } from "gnim"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
+import { readFile, writeFile } from "ags/file"
 
 import { NoteManager, Grid } from "@/structures"
 import { NoteView } from "@/notelist/noteview"
 import { TopBar } from "@/topbar/topbar"
+
+function CheckForJSON() {
+  try{
+    const data = readFile("~/.config/TodoList/notes/notes.json")
+    console.log("File data", data)
+    return data
+  }
+  catch(error){
+    console.log("Error reading config file:", error)
+    writeFile("~/.config/TodoList/notes/notes.json", "[]") 
+    return ""
+  }
+  
+}
 
 export function MainWindow(){
   const WIN_H = 250
@@ -17,7 +32,8 @@ export function MainWindow(){
   const marginTop = Math.round(height / 4 - WIN_H / 2)
 
   // TODO: Load notes from JSON
-  NoteManager.init()
+  const previousNoteData = CheckForJSON() 
+  NoteManager.init(previousNoteData)
 
   const [addingNewNote, setAddingNewNote] = createState(false)
 

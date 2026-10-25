@@ -32,7 +32,15 @@ checkbutton.note check{
   min-height: 16px;
 }
 
-checkbutton.note.completed label{
+button.deletenote {
+  min-width: 0;
+  min-height: 0;
+  padding: 0 4px;
+  margin-right: 4px;
+  background-image: none;
+}
+
+checkbutton.notetext.completed label{
   text-decoration: line-through;
   opacity: 0.6;
 }

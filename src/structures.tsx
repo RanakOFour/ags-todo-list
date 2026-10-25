@@ -1,5 +1,9 @@
 import { jsx, CCProps, createState, Accessor, Setter } from "ags"
+import { readFile, writeFile, writeFileAsync } from "ags/file"
 import { Gtk } from "ags/gtk4"
+import Json from "gi://Json?version=1.0"
+
+let configNotePath = "~/.config/TodoList/notes/notes.json"
 
 // *************************
 // GTK WIDGET JSX DEFINITIONS
@@ -17,10 +21,10 @@ export class Note
 {
     id : number = -1
     text : string = ""
-    cmdToStart : string = ""
     isCompleted : boolean = false
-    deadline : Date = new Date()
     dateCreated : Date = new Date()
+    deadline : Date = new Date()
+    cmdToStart : string = ""
 }
 
 export class Tag
@@ -37,21 +41,51 @@ export class NoteManager
     
     public notes : Accessor<Note[]>
     private setNotes : Setter<Note[]>
+    private nextNoteID : number
 
     //TODO: tag implementation
     //tags : Tag[]
 
-    private constructor() {
+    private constructor(_oldNotes : string) {
         const [notes, setNotes] = createState<Note[]>([])
         this.notes = notes
         this.setNotes = setNotes
+        this.nextNoteID = 0
+
+        interface JSONData {
+            id : number
+            text : string
+            dateCreated : Date
+            isCompleted : boolean
+            deadline? : Date
+            cmdToStart? : string
+        }
+
+        const jsonParseRes = JSON.parse(_oldNotes) as JSONData[]
+        
+        jsonParseRes.forEach(data => {
+            const newNote = new Note()
+            newNote.id = this.nextNoteID++
+            newNote.text = data.text
+            newNote.dateCreated = data.dateCreated
+            newNote.isCompleted = data.isCompleted
+            if(data.deadline) {
+                newNote.deadline = data.deadline
+            }
+            if(data.cmdToStart) {
+                newNote.cmdToStart = data.cmdToStart
+            }
+            this.setNotes((prev) => [...prev, newNote])
+        });
+
+        this.notes.subscribe(() => {this.WriteNotesToConfig()})
 
         console.log("NoteManager initialized")
     }
 
-    static init() {
+    static init(_previousNoteData : string) {
         if(NoteManager.self == null) {
-            NoteManager.self = new NoteManager()
+            NoteManager.self = new NoteManager(_previousNoteData)
             return NoteManager.self
         }
         else {
@@ -62,29 +96,38 @@ export class NoteManager
     }
 
     static get() {
-        if(!NoteManager.self) {
-            NoteManager.init()
-        }
-
         return NoteManager.self
+    }
+
+    WriteNotesToConfig()
+    {
+        const noteString = JSON.stringify(this.notes(), null, 2)
+        writeFile(configNotePath, noteString)
+        console.log("Note changes written to file")
     }
 
     AddNote(_text : string) : Note {
         var newNote = new Note()
     
-        newNote.id = this.notes.length
+        newNote.id = this.nextNoteID++
         newNote.text = _text
         newNote.dateCreated = new Date()
     
         this.setNotes((prev) => [...prev, newNote])
-    
+
+        console.log("Note", newNote.id, "created")
+
         return newNote
     }
- 
-    SetDeadline(_id : number, _deadline : Date) {
-        const found = this.notes().find((note) => note.id == _id)
-        if(found) {
-            found.deadline = _deadline
+    
+    RemoveNote(_note : Note) {
+        const note = this.notes().find((note) => note.id == _note.id)
+        if(note) {
+            this.setNotes((prev) => prev.filter((note) => note.id != _note.id))
+            console.log("Note", _note.id, "removed")
+        }
+        else {
+            console.log("Could not find note to remove")
         }
     }
 }
