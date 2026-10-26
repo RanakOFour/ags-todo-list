@@ -64,7 +64,9 @@ export function NoteView(_addingNewNote : Accessor<boolean>, _setAddingNewNote :
       onActivate={(self) => {
         const text = self.text.trim()
         if (text != "") nm.AddNote(text)
-        self.text = ""
+        self.text = "";
+
+        (self.get_root() as Gtk.Window).set_focus(null)
         _setAddingNewNote(false)
       }}
     />

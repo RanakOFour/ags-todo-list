@@ -9,6 +9,8 @@ export function TopBar(setAddingNewNote : (v: boolean) => void){
       <button 
         cssClasses={["topbutton", "addnote"]}
         label="+"
+        focusable={false}
+        focusOnClick={false}
         onClicked={() => {
           setAddingNewNote(true)
           NewNoteEntry.grab_focus()

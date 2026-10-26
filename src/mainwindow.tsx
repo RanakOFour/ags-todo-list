@@ -1,21 +1,27 @@
 import { createState } from "gnim"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
 import { readFile, writeFile } from "ags/file"
+import GLib from "gi://GLib"
 
 import { NoteManager, Grid } from "@/structures"
 import { NoteView } from "@/notelist/noteview"
 import { TopBar } from "@/topbar/topbar"
 
+
 function CheckForJSON() {
+  const dir = GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget"])
+  GLib.mkdir_with_parents(dir, 0o755)
+  const notesPath = GLib.build_filenamev([dir, "notes.conf"])
+
   try{
-    const data = readFile("~/.config/TodoList/notes/notes.json")
+    const data = readFile(notesPath)
     console.log("File data", data)
     return data
   }
   catch(error){
     console.log("Error reading config file:", error)
-    writeFile("~/.config/TodoList/notes/notes.json", "[]") 
-    return ""
+    writeFile(notesPath, "[]") 
+    return "[]"
   }
   
 }
@@ -41,12 +47,15 @@ export function MainWindow(){
   const topBar = TopBar(setAddingNewNote)
   
   return(
-  <window visible name="ToDo List"
+  <window name="ToDo List"
+          cssClasses={["todo"]}
+          layer={Astal.Layer.BOTTOM}
           anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT}
           exclusivity={Astal.Exclusivity.IGNORE}
           marginTop={marginTop}
           marginRight={marginRight}
           keymode={Astal.Keymode.ON_DEMAND}
+          visible
     >
     <Grid rowSpacing={2} columnSpacing={1}
           marginStart={16} marginEnd={16}

@@ -1,9 +1,7 @@
 import { jsx, CCProps, createState, Accessor, Setter } from "ags"
-import { readFile, writeFile, writeFileAsync } from "ags/file"
+import { writeFile } from "ags/file"
 import { Gtk } from "ags/gtk4"
-import Json from "gi://Json?version=1.0"
-
-let configNotePath = "~/.config/TodoList/notes/notes.json"
+import GLib from "gi://GLib"
 
 // *************************
 // GTK WIDGET JSX DEFINITIONS
@@ -101,7 +99,10 @@ export class NoteManager
     WriteNotesToConfig()
     {
         const noteString = JSON.stringify(this.notes(), ["text", "dateCreated", "isCompleted", "deadline", "cmdToStart"], 2)
-        writeFile(configNotePath, noteString)
+        
+        const configFilePath = GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget/notes.conf"])
+
+        writeFile(configFilePath, noteString)
         console.log("Note changes written to file")
     }
 
