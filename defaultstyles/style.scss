@@ -1,13 +1,15 @@
+@use "colors" as c;
+
 $panel:        #1e1e26;   // window background (dark grey)
 $panel-raised: #2b2b37;   // entry background, slightly lighter
-$outline:      #615198; // purple window outline
-$accent:       #615198;
-$accent-hover: #A36096;
-$accent-press: #CA6FA3;
-$danger:       #9B3A5C;
-$danger-hover: #974A74;
-$on-accent:    #08060C; // dark text on coloured pills (as in waybar)
-$text:         #b0bfdc;
+$outline:      c.$color4; // purple window outline
+$accent:       c.$color4;
+$accent-hover: c.$color5;
+$accent-press: c.$color6;
+$danger:       c.$color1;
+$danger-hover: c.$color2;
+$on-accent:    c.$background; // dark text on coloured pills (as in waybar)
+$text:         c.$foreground;
 
 
 window{
