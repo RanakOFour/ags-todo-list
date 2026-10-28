@@ -6,21 +6,28 @@ import { Gdk } from "ags/gtk4"
 import { g_monitor, g_styleConfig } from "@/globals"
 import { MainWindow } from "@/mainwindow"
 import { readFile } from "ags/file"
+import { exec } from "ags/process"
 
+function CompileSCSS(_path : string) : string | null {
+  if (_path.endsWith(".css")) {
+    return readFile(_path)          // already plain CSS
+  }
+
+  try {
+    return exec(["sass", "--no-source-map", _path])
+  } catch (e) {
+    console.log("Failed to compile", _path, e)
+    return null
+  }
+}
 
 function CheckForStyle(_filePath : string) {
-  console.log("Checking config path", _filePath, "for style.scss")
+  console.log("Checking config path", _filePath, "for style")
+  const css = CompileSCSS(_filePath)
+  if(css == null) return false
 
-  try
-  {
-    const data = readFile(_filePath)
-    console.log("Found css style")
-    g_styleConfig.Set(data)
-  }
-  catch
-  {
-    console.log("No css style found")
-  }
+  g_styleConfig.Set(css)
+  return true
 }
 
 function SetDisplay(_index : number) : boolean {
@@ -65,9 +72,8 @@ app.start({
       else if(argument.includes("stylePath=")){
         const stylePath = argument.slice("stylePath=".length)
         CheckForStyle(stylePath)
-        if(g_styleConfig){
-          
-          app.apply_css(g_styleConfig.Get()!, true)
+        if(CheckForStyle(stylePath)){
+          app.apply_css(g_styleConfig.Get()!, false)
           customStylePath = true
         }
       }
@@ -76,8 +82,10 @@ app.start({
     if(!g_monitor.Get()) SetDisplay(0)
     if(!customStylePath) {
       // Will overwrite g_styleConfig, else default
-      CheckForStyle(GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget/style.scss"]))
-      app.apply_css(g_styleConfig.Get()!, true)
+      if(CheckForStyle(GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget/style.scss"])))
+      {
+        app.apply_css(g_styleConfig.Get()!, false)
+      }
     }
 
     return MainWindow(g_monitor.Get()!)
