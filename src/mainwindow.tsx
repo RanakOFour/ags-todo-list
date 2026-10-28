@@ -28,12 +28,12 @@ function CheckForJSON() {
   
 }
 
-export function MainWindow(){
+export function MainWindow(_monitor : Gdk.Monitor){
   const WIN_H = 250
   const WIN_W = 250
-  // First monitor size
-  const monitor = Gdk.Display.get_default()!.get_monitors().get_item(0) as Gdk.Monitor
-  const { width, height } = monitor.get_geometry()
+
+
+  const { width, height } = _monitor.get_geometry()
 
   // Anchored top-right, that means:
   const marginRight = Math.round(width / 4 - WIN_W / 2)
@@ -50,6 +50,7 @@ export function MainWindow(){
   
   return(
   <window name="ToDo List"
+          gdkmonitor={_monitor}
           cssClasses={["todo"]}
           layer={Astal.Layer.BOTTOM}
           anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT}

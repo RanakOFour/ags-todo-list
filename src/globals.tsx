@@ -1,15 +1,43 @@
-@use "colors" as c;
+import { Gdk } from "ags/gtk4"
 
-$panel:        #1e1e26;   // window background (dark grey)
+class Global<T = string> {
+    private data : T
+
+    constructor(_default : T | null)
+    {
+        if(_default) {
+            this.data = _default
+        }
+        else
+        {
+            this.data = (0 as T)
+        }
+    }
+
+    Set(_data : T)
+    {
+        this.data = _data
+    }
+
+    Get() : T
+    {
+        return this.data
+    }
+
+}
+
+// Default config because my ass is NOT handling having NOTHING
+const defaultStyleConfig : string = 
+`$panel:        #1e1e26;   // window background (dark grey)
 $panel-raised: #2b2b37;   // entry background, slightly lighter
-$outline:      c.$color4; // purple window outline
-$accent:       c.$color4;
-$accent-hover: c.$color5;
-$accent-press: c.$color6;
-$danger:       c.$color1;
-$danger-hover: c.$color2;
-$on-accent:    c.$background; // dark text on coloured pills (as in waybar)
-$text:         c.$foreground;
+$outline:      #615198; // purple window outline
+$accent:       #615198;
+$accent-hover: #A36096;
+$accent-press: #CA6FA3;
+$danger:       #9B3A5C;
+$danger-hover: #974A74;
+$on-accent:    #08060C; // dark text on coloured pills (as in waybar)
+$text:         #b0bfdc;
 
 
 window{
@@ -101,4 +129,7 @@ entry.newnote {
   padding: 2px 0px;
 
   text { margin-left: 0; padding-left: 8px; }
-}
+}`
+
+export var g_monitor = new Global<Gdk.Monitor>(null)
+export var g_styleConfig = new Global<string>(defaultStyleConfig)
