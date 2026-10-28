@@ -33,7 +33,7 @@ export function MainWindow(_monitor : Gdk.Monitor){
   const WIN_W = 250
 
 
-  const { width, height } = _monitor.get_geometry()
+  const { width, height } = _monitor.geometry
 
   // Anchored top-right, that means:
   const marginRight = Math.round(width / 4 - WIN_W / 2)

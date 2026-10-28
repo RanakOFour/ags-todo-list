@@ -66,19 +66,20 @@ app.start({
         const stylePath = argument.slice("stylePath=".length)
         CheckForStyle(stylePath)
         if(g_styleConfig){
-          this.css = g_styleConfig.Get()
+          
+          app.apply_css(g_styleConfig.Get()!, true)
           customStylePath = true
         }
       }
     });
 
-    if(!g_monitor) SetDisplay(0)
+    if(!g_monitor.Get()) SetDisplay(0)
     if(!customStylePath) {
       // Will overwrite g_styleConfig, else default
       CheckForStyle(GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget/style.scss"]))
-      this.css = g_styleConfig.Get()
+      app.apply_css(g_styleConfig.Get()!, true)
     }
 
-    return MainWindow(g_monitor.Get())
+    return MainWindow(g_monitor.Get()!)
   },
 })

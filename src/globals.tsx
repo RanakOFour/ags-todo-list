@@ -1,7 +1,7 @@
 import { Gdk } from "ags/gtk4"
 
 class Global<T = string> {
-    private data : T
+    private data? : T
 
     constructor(_default : T | null)
     {
@@ -19,9 +19,12 @@ class Global<T = string> {
         this.data = _data
     }
 
-    Get() : T
+    Get()
     {
+      if(this.data)
         return this.data
+
+      return null
     }
 
 }
