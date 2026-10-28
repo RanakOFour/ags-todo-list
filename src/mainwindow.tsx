@@ -11,7 +11,7 @@ import { TopBar } from "@/topbar/topbar"
 function CheckForJSON() {
   const dir = GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget"])
   GLib.mkdir_with_parents(dir, 0o755)
-  const notesPath = GLib.build_filenamev([dir, "notes.conf"])
+  const notesPath = GLib.build_filenamev([dir, "data/notes.conf"])
 
   try{
     const data = readFile(notesPath)
@@ -19,8 +19,10 @@ function CheckForJSON() {
     return data
   }
   catch(error){
-    console.log("Error reading config file:", error)
-    writeFile(notesPath, "[]") 
+    console.log("Error reading notes file:", error)
+    console.log("Creating empty notes file")
+    writeFile(notesPath, "[]")
+    console.log("Notes file created")
     return "[]"
   }
   
@@ -54,7 +56,7 @@ export function MainWindow(){
           exclusivity={Astal.Exclusivity.IGNORE}
           marginTop={marginTop}
           marginRight={marginRight}
-          keymode={Astal.Keymode.ON_DEMAND}
+          keymode={addingNewNote((a) => (a ? Astal.Keymode.ON_DEMAND : Astal.Keymode.NONE))}
           visible
     >
     <Grid rowSpacing={2} columnSpacing={1}

@@ -20,6 +20,7 @@ export function NoteItem({note} : {note : Note}){
     label={"X"}
     onClicked={() => {NoteManager.get().RemoveNote(note)}}
     halign={Gtk.Align.END}
+    valign={Gtk.Align.CENTER}
     />) as Gtk.Widget
     
     return(
