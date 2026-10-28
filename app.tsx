@@ -10,8 +10,11 @@ import { exec } from "ags/process"
 
 function CompileSCSS(_path : string) : string | null {
   if (_path.endsWith(".css")) {
+    console.log("Reading", _path)
     return readFile(_path)          // already plain CSS
   }
+
+  console.log("Found scss path. Compiling...")
 
   try {
     return exec(["sass", "--no-source-map", _path])
