@@ -100,7 +100,7 @@ export class NoteManager
     {
         const noteString = JSON.stringify(this.notes(), ["text", "dateCreated", "isCompleted", "deadline", "cmdToStart"], 2)
         
-        const configFilePath = GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget/notes.conf"])
+        const configFilePath = GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget", "data", "notes.conf"])
 
         writeFile(configFilePath, noteString)
         console.log("Note changes written to file")

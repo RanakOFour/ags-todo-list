@@ -1,12 +1,24 @@
 #!/usr/bin/env -S ags run
 import app from "ags/gtk4/app"
 import GLib from "gi://GLib"
+import GLibUnix from "gi://GLibUnix"
 import { Gdk } from "ags/gtk4"
 
 import { g_monitor, g_styleConfig } from "@/globals"
 import { MainWindow } from "@/mainwindow"
 import { readFile } from "ags/file"
 import { exec } from "ags/process"
+
+function SetQuitHandlers() {
+  const onSignal = () => {
+    app.quit()
+    return GLib.SOURCE_REMOVE
+  }
+
+  for(const sig of [2, 15]) {
+      GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, sig, onSignal)
+  }
+}
 
 function CompileSCSS(_path : string) : string | null {
   if (_path.endsWith(".css")) {
@@ -58,10 +70,17 @@ function SetDisplay(_index : number) : boolean {
 
 app.start({
   requestHandler(argv, response) {
-    console.log("Requests:", argv)
+    if (argv[0] === "quit") {
+      response("quitting")
+      app.quit()
+      return
+    }
+
     console.log("An instance of TodoWidget is already running!")
   },
   main(...argv: string[]) {
+  SetQuitHandlers()
+
   var customStylePath = false
     argv.forEach(argument => {
       console.log("Argument passed:", argument)
@@ -76,21 +95,19 @@ app.start({
         const stylePath = argument.slice("stylePath=".length)
         CheckForStyle(stylePath)
         if(CheckForStyle(stylePath)){
-          app.apply_css(g_styleConfig.Get()!, false)
           customStylePath = true
         }
       }
     });
 
-    if(!g_monitor.Get()) SetDisplay(0)
+    if(!g_monitor.Get()) { SetDisplay(0) }
+    
     if(!customStylePath) {
       // Will overwrite g_styleConfig, else default
-      if(CheckForStyle(GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget/style.scss"])))
-      {
-        app.apply_css(g_styleConfig.Get()!, false)
-      }
+      CheckForStyle(GLib.build_filenamev([GLib.get_user_config_dir(), "TodoWidget", "style.scss"]))
     }
-
+    
+    app.apply_css(g_styleConfig.Get()!, false)
     return MainWindow(g_monitor.Get()!)
   },
 })
